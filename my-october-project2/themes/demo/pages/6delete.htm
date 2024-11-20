@@ -1,0 +1,69 @@
+url = "/delete"
+layout = "default"
+title = "6delete"
+
+[userList]
+
+[userDelete]
+==
+<div class="container mt-5">
+    <h2 class="text-center">Users List</h2>
+    <p>Delete user you want</p>
+    <table class="table table-striped" id="userTable">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if users is not empty %}
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.email }}</td>
+                        {# <td>Debug ID: {{ user.id }}</td> #}
+                        <td>
+                            <form data-request="onDeleteUser" data-request-data="userId: '{{ user.id }}'" method="POST">
+                                {{ form_token() }}
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No users found</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% flash %}
+    <div class="alert alert-{{ type }}">{{ message }}</div>
+
+<script> 
+
+function onDeleteSuccess(data) {
+    const feedback = document.getElementById('update-feedback');
+    feedback.classList.remove('d-none', 'alert-danger');
+    feedback.classList.add('alert-success');
+    feedback.textContent = data.message || 'User deleted successfully';
+
+    // Reload the page after successful delete
+    window.location.reload();
+}
+
+function onDeleteError(error) {
+    const feedback = document.getElementById('update-feedback');
+    feedback.classList.remove('d-none', 'alert-success');
+    feedback.classList.add('alert-danger');
+    feedback.textContent = error.responseJSON?.error || 'An error occurred while deleting the user';
+}
+
+</script>
+
+{% endflash %}

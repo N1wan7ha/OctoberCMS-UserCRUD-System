@@ -1,0 +1,101 @@
+url = "/update"
+layout = "default"
+title = "5update"
+
+[userList]
+==
+<div class="container mt-5">
+    <h2 class="text-center">Users List</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <button 
+                        type="button" 
+                        class="btn btn-primary btn-sm"
+                        data-request="onSelectUser" 
+                        data-request-data="userId: {{ user.id }}" 
+                        data-request-success="populateEditForm(data.user)">
+                        Edit
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit User Details Form -->
+<div id="userDetails" class="container mt-5">
+    <h3>Edit User Details</h3>
+    <form 
+        
+        data-request="onUpdateUser" 
+        data-request-success="onUpdateSuccess"
+        data-request-error="onUpdateError">
+        
+        <input type="hidden" name="userId" id="edit-user-id">
+        <div class="mb-3">
+            <label class="form-label">First Name</label>
+            <input type="text" name="first_name" id="edit-first-name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="last_name" id="edit-last-name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" id="edit-email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" id="edit-username" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+    <div id="update-feedback" class="alert d-none mt-3"></div>
+</div>
+
+<script>
+    function populateEditForm(user) {
+        if (!user) return;
+        
+        document.getElementById('edit-user-id').value = user.id;
+        document.getElementById('edit-first-name').value = user.first_name;
+        document.getElementById('edit-last-name').value = user.last_name;
+        document.getElementById('edit-email').value = user.email;
+        document.getElementById('edit-username').value = user.username;
+        
+        // Scroll to the edit form
+        document.getElementById('userDetails').scrollIntoView({ behavior: 'smooth' });
+    }
+
+function onDeleteSuccess(data) {
+    const feedback = document.getElementById('update-feedback');
+    feedback.classList.remove('d-none', 'alert-danger');
+    feedback.classList.add('alert-success');
+    feedback.textContent = data.message || 'User deleted successfully';
+
+    // Reload the page after successful delete
+    window.location.reload();
+}
+
+    function onUpdateError(error) {
+        const feedback = document.getElementById('update-feedback');
+        feedback.classList.remove('d-none', 'alert-success');
+        feedback.classList.add('alert-danger');
+        feedback.textContent = error.responseJSON?.error || 'An error occurred while updating';
+    }
+</script>
